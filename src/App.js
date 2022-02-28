@@ -1,25 +1,23 @@
-import logo from './logo.svg';
-import './App.css';
+import Cadastro from "./views/cadastro";
+import CEP_COM_JS from "./views/cep_com_js";
+
+import "primereact/resources/themes/lara-light-indigo/theme.css";  //theme
+import "primereact/resources/primereact.min.css";                  //core css
+import "primeicons/primeicons.css";                                //icons
+
+import 'bootswatch/dist/cerulean/bootstrap.css';
+import 'toastr/build/toastr.css';
+import 'toastr/build/toastr.min.js';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+
+      <Cadastro/>
+      
   );
 }
 
 export default App;
+

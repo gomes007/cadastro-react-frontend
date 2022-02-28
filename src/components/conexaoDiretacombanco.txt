@@ -1,0 +1,15 @@
+
+  entrar = () => {
+    
+    axios
+      .post('http://localhost:8080/funcionarios', {
+        nome: this.state.nome,
+        email: this.state.email
+      }).then(response => {
+        this.setState({nome:'', email:''});
+        mensagemSucesso("cadastrado com sucesso!");
+        console.log(response)
+      }).catch((error) => {
+        console.log(error.response)
+      });
+  }
