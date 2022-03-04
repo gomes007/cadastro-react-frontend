@@ -1,17 +1,17 @@
 /* eslint-disable no-dupe-class-members */
 import React from "react";
-import { useForm, register } from 'react-hook-form';
-import CEP from "./cep";
+
 
 import FormGroup from "../components/form-group";
 import Card from "../components/card";
 import {mensagemSucesso, mensagemErro} from "../components/toastr"
 import Button from 'react-bootstrap/Button';
 import { Checkbox } from 'primereact/checkbox';
-
-
-
 import BootstrapSwitchButton from 'bootstrap-switch-button-react';
+
+import react, { useEffect, useState } from "react";
+
+
 
 import CadastroService from "../service/cadastroService";
 
@@ -62,11 +62,11 @@ class Cadastro extends React.Component {
 
   checkCEP = (e) => {
     const cep = e.target.value.replace(/\D/g, '');
-    console.log(cep);
+    //console.log(cep);
     fetch(`https://viacep.com.br/ws/${cep}/json/`)
       .then(res => res.json())
       .then(data => {
-        console.log(data);
+        //console.log(data);
         document.getElementById('rua').value=(data.logradouro);
         document.getElementById('bairro').value=(data.bairro);
         document.getElementById('cidade').value=(data.localidade);
@@ -83,21 +83,102 @@ class Cadastro extends React.Component {
     const { nome, email, sexo, podeViajar, coding, dataNascimento, cep, logradouro, numero, bairro, nome_cidade, uf } = this.state;
     const funcionario = { nome, email, sexo, podeViajar, coding, dataNascimento, cep, logradouro, numero, bairro, nome_cidade, uf };
 
-    
+  
     
     this.service
       .save(funcionario)
       .then((response) => {
         mensagemSucesso("cadastrado com sucesso!");
-        this.setState({nome:"", email:"", sexo:""});
+        
       })
       .catch((erro) => {
-        mensagemErro(erro.response.data);
+        mensagemErro(erro.response.data); 
       });
 
   };
 
+
+
+  //data table para endereços
+
+  adicionaItemNaTabela(item) {
+    var itemTr = this.montaTr(item);
+    var tabela = document.getElementById('tabela-items');
+    tabela.appendChild(itemTr);
+  }
+
+
+  obtemitemDoForm(form) {
+    var item = {
+      cep: form.cep.value,
+      rua: form.rua.value,
+      bairro: form.bairro.value,
+      cidade: form.cidade.value,
+      uf: form.uf.value,
+    };      
+    return item;
+  }
+
+  onsalvar(){
+
+    let selectedCep = [...this.state.cep, ...this.state.logradouro];
+
+    this.setState({ cep: selectedCep});
+    this.setState({ logradouro: selectedCep});
+
+  }
+
+  onsalvar = this.onsalvar.bind(this);
+
   
+  montaTr(item) {
+    //criar tr para incluir novos dados
+    var itemTr = document.createElement("tr");
+    itemTr.classList.add("item");
+  
+    //incluindo td na tr
+    itemTr.appendChild(this.montaTd(item.cep, "info-cep"));
+    itemTr.appendChild(this.montaTd(item.rua, "info-rua"));
+    itemTr.appendChild(this.montaTd(item.bairro, "info-bairro"));
+    itemTr.appendChild(this.montaTd(item.cidade, "info-cidade"));
+    itemTr.appendChild(this.montaTd(item.uf, "info-uf"));
+    return itemTr;
+  }
+
+
+  montaTd(dado, classe) {
+    var td = document.createElement("td");
+    td.textContent = dado;
+    td.classList.add(classe);
+    return td;
+  }
+
+
+
+  addDados = (e) => {
+    
+        e.preventDefault();
+      
+        //passar o formulario para uma variavel e capturar os valores dos input atraves do name
+        var form = document.getElementById('form-adiciona');
+      
+        var item = this.obtemitemDoForm(form);
+      
+        this.adicionaItemNaTabela(item)
+      
+        form.reset();        
+  }
+  //fim data table para endereços
+
+  
+  onEndChange(e) {
+    let selectedCep = [...this.state.cep];
+
+    this.setState({ cep: selectedCep });
+}
+
+onEndChange = this.onEndChange.bind(this);
+
 
 
 
@@ -178,30 +259,52 @@ class Cadastro extends React.Component {
               
                 <br/>
 
-                <form className="container">
+                <form className="container" method="get" id="form-adiciona">
                   <FormGroup label="CEP:" htmlFor="cep">
-                      <input type="text"  className="form-control" id="cep" name="cep" onBlur={this.checkCEP} onChange={(e) => this.setState({ cep: e.target.value })} />
+                      <input type="text"  className="form-control" id="cep" name="cep" onBlur={this.checkCEP} />
                   </FormGroup>
                   
                   <FormGroup label="Rua:" htmlFor="rua">
-                      <input type="text"  className="form-control" id="rua" name="rua" onChange={(e) => this.setState({ logradouro: e.target.value })} />
+                      <input type="text"  className="form-control" id="rua" name="rua" />
                   </FormGroup>
 
                   <FormGroup label="Bairro:" htmlFor="bairro">
-                      <input type="text"  className="form-control" id="bairro" name="bairro" onChange={(e) => this.setState({ bairro: e.target.value })} />
+                      <input type="text"  className="form-control" id="bairro" name="bairro" />
                   </FormGroup>
 
-                  <FormGroup label="Cidade:" htmlFor="cidade">
-                      <input type="text"  className="form-control" id="cidade" name="cidade" onChange={(e) => this.setState({ nome_cidade: e.target.value })} />
+                  <FormGroup label="Cidade:" htmlFor="nome_cidade">
+                      <input type="text"  className="form-control" id="cidade" name="nome_cidade" />
                   </FormGroup>
 
-                  <FormGroup label="UF:" htmlFor="cidade">
-                      <input type="text"  className="form-control" id="uf" name="uf" onChange={(e) => this.setState({ uf: e.target.value })} />
+                  <FormGroup label="UF:" htmlFor="uf">
+                      <input type="text"  className="form-control" id="uf" name="uf" />
                   </FormGroup>
+
+                  <br/>
+                  <button onClick={this.addDados} className="btn btn btn-success">Adicionar</button>
                 </form>
 
+                <br/>
 
-
+        
+              <h2>Enderecos</h2>
+				
+              
+              <table className="table table-striped">
+                <thead>
+                  <tr>
+                      <th>CEP</th>
+                      <th>Rua</th>
+                      <th>Bairro</th>
+                      <th>cidade</th>
+                      <th>estado</th>
+                  </tr>
+                </thead>
+                <tbody id="tabela-items" >
+                  
+                </tbody>
+              </table>
+             
 
               <div>
          </div>          
