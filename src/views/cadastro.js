@@ -12,7 +12,9 @@ import { Dropdown } from 'react-dropdown-now';
 import 'react-dropdown-now/style.css';
 import { InputTextarea } from 'primereact/inputtextarea';
 import fieldset from '../components/fieldset.css'
-
+import Tabs from "react-bootstrap/Tabs";
+import { Tab } from "react-bootstrap";
+import * as messages from '../components/toastr';
 
 
 import CadastroService from "../service/cadastroService";
@@ -31,6 +33,7 @@ class Cadastro extends React.Component {
     estadoCivil: "",
     outrasInfo: "",
     telefone: "",
+    cpf: "",
 
     cep:"",
     logradouro: "",
@@ -39,7 +42,6 @@ class Cadastro extends React.Component {
     bairro: "",
     nome_cidade: "",
     uf: "",
-
   };
   
 
@@ -88,21 +90,18 @@ class Cadastro extends React.Component {
   }
 
  
-
+  handleReset = () => { this.setState(({ name: '', email: '', })) }
 
 
   cadastrar = () => {
 
-    const { nome, email, sexo, podeViajar, coding, dataNascimento, cep, logradouro, numero, bairro, nome_cidade, uf, estadoCivil, outrasInfo, telefone } = this.state;
-    const funcionario = { nome, email, sexo, podeViajar, coding, dataNascimento, cep, logradouro, numero, bairro, nome_cidade, uf, estadoCivil, outrasInfo, telefone };
-
-  
-    
+    const { nome, email, sexo, podeViajar, coding, dataNascimento, cep, logradouro, numero, bairro, nome_cidade, uf, estadoCivil, outrasInfo, telefone, cpf, complemento } = this.state;
+    const funcionario = { nome, email, sexo, podeViajar, coding, dataNascimento, cep, logradouro, numero, bairro, nome_cidade, uf, estadoCivil, outrasInfo, telefone, cpf, complemento };
+   
     this.service
       .save(funcionario)
-      .then((response) => {
-        mensagemSucesso("cadastrado com sucesso!");
-        
+      .then((response) => {                      
+        messages.mensagemSucesso('cadastrado com sucesso!');
       })
       .catch((erro) => {
         mensagemErro(erro.response.data); 
@@ -125,23 +124,14 @@ class Cadastro extends React.Component {
     var item = {
       cep: form.cep.value,
       rua: form.rua.value,
+      numero: form.numero.value,
+      complemento: form.complemento.value,
       bairro: form.bairro.value,
       cidade: form.cidade.value,
       uf: form.uf.value,
     };      
     return item;
   }
-
-  onsalvar(){
-
-    let selectedCep = [...this.state.cep, ...this.state.logradouro];
-
-    this.setState({ cep: selectedCep});
-    this.setState({ logradouro: selectedCep});
-
-  }
-
-  onsalvar = this.onsalvar.bind(this);
 
   
   montaTr(item) {
@@ -152,6 +142,8 @@ class Cadastro extends React.Component {
     //incluindo td na tr
     itemTr.appendChild(this.montaTd(item.cep, "info-cep"));
     itemTr.appendChild(this.montaTd(item.rua, "info-rua"));
+    itemTr.appendChild(this.montaTd(item.numero, "info-num"));
+    itemTr.appendChild(this.montaTd(item.complemento, "info-complemento"));
     itemTr.appendChild(this.montaTd(item.bairro, "info-bairro"));
     itemTr.appendChild(this.montaTd(item.cidade, "info-cidade"));
     itemTr.appendChild(this.montaTd(item.uf, "info-uf"));
@@ -198,152 +190,168 @@ class Cadastro extends React.Component {
     <div className="container" style={{ position: "relative", top: "10px" }}>
       <Card title="Cadastro de Funcionarios"> 
         <div className="row">
-          <div className="col-lg-6">            
-              <FormGroup label="Nome:" htmlFor="inputNome">
-                <input type="text"  className="form-control" id="inputNome" name="nome" onChange={(e) => this.setState({ nome: e.target.value })} />
-              </FormGroup>
+          <div className="col-lg-6">                                         
+                <Tabs
+                    defaultActiveKey="profile"
+                    transition={false}
+                    id="noanim-tab-example"
+                    className="mb-3">
 
-              <FormGroup label="Email:" htmlFor="inputEmail">
-                <input type="text"  className="form-control" id="inputEmail" name="email" onChange={(e) => this.setState({ email: e.target.value })} />
-              </FormGroup>
+                  <Tab eventKey="profile" title="Profile">                    
+                    <FormGroup label="Nome:" htmlFor="inputNome">
+                        <input type="text"  className="form-control" id="inputNome" name="nome" onChange={(e) => this.setState({ nome: e.target.value })} />
+                    </FormGroup>
 
-              <br/>
+                    <FormGroup label="Email:" htmlFor="inputEmail">
+                      <input type="text"  className="form-control" id="inputEmail" name="email" onChange={(e) => this.setState({ email: e.target.value })} />
+                    </FormGroup>
 
-              <div className="container">
-                  <fieldset className="scheduler-border">
-                      <legend className="scheduler-border">Sexo</legend>
-                      <div className="form-check">
-                        <label className="form-check-label" htmlFor="gridRadios1">Masculino</label>
-                        <input className="form-check-input" type="radio" name="sexo" id="gridRadios1" value="masculino" onChange={(e) => this.setState({ sexo: e.target.value })}/>
+                    <FormGroup label="CPF:" htmlFor="inputCpf">
+                      <input type="number"  className="form-control" id="inputCpf" name="cpf" onChange={(e) => this.setState({ cpf: e.target.value })} />
+                    </FormGroup>
+
+                    <FormGroup label="Telefone:" htmlFor="inputTelefone">
+                      <input type="number"  className="form-control" id="inputTelefone" name="telefone" onChange={(e) => this.setState({ telefone: e.target.value })} />
+                    </FormGroup>
+
+                    <br/>
+
+                    <FormGroup label="Data Nascimento:" htmlFor="inputDataNascimento">
+                        <input type="date" className="form-control" id="inputDataNascimento" name="DataNascimento" onChange={(e) =>  this.setState({ dataNascimento: e.target.value })} />
+                    </FormGroup>
+
+                    <div className="container">
+                        <fieldset className="scheduler-border">
+                            <legend className="scheduler-border">Sexo</legend>
+                            <div className="form-check">
+                              <label className="form-check-label" htmlFor="gridRadios1">Masculino</label>
+                              <input className="form-check-input" type="radio" name="sexo" id="gridRadios1" value="masculino" onChange={(e) => this.setState({ sexo: e.target.value })}/>
+                            </div>
+                            <div className="form-check">
+                              <label className="form-check-label" htmlFor="gridRadios2">Feminino</label>
+                              <input className="form-check-input" type="radio" name="sexo" id="gridRadios2" value="feminino" onChange={(e) => this.setState({ sexo: e.target.value })}/>
+                            </div>
+                        </fieldset>
                       </div>
-                      <div className="form-check">
-                        <label className="form-check-label" htmlFor="gridRadios2">Feminino</label>
-                        <input className="form-check-input" type="radio" name="sexo" id="gridRadios2" value="feminino" onChange={(e) => this.setState({ sexo: e.target.value })}/>
-                      </div>
-                  </fieldset>
-                </div>
+     
+                      <Dropdown
+                          placeholder="Estado Civil"
+                          options={['Solteiro', 'Casado', 'Divorciado']}
+                          value="estadoCivil"
+                          onChange={this.onEstadoCivilChange}
+                          onSelect={(value) => console.log('selected!', value)} // always fires once a selection happens even if there is no change
+                          onClose={(closedBySelection) => console.log('closedBySelection?:', closedBySelection)}
+                          onOpen={() => console.log('open!')}
+                      />
 
-          
-              <FormGroup label="Data Nascimento:" htmlFor="inputDataNascimento">
-                <input type="date" className="form-control" id="inputDataNascimento" name="DataNascimento" onChange={(e) =>  this.setState({ dataNascimento: e.target.value })} />
-              </FormGroup>
+                      <br/>
 
-
-              <div className="card">
-                    <h5>Linguagens de programação</h5>
-                    <div className="field-checkbox">
-                        <label htmlFor="code1">Java</label>
-                        <Checkbox inputId="code1" name="code" value="Java" onChange={this.onCodeChange} checked={this.state.coding.indexOf('Java') !== -1} />
-                    </div>
-                    <div className="field-checkbox">
-                        <label htmlFor="code2">JavaScript</label>
-                        <Checkbox inputId="code2" name="code" value="JavaScript" onChange={this.onCodeChange} checked={this.state.coding.indexOf('JavaScript') !== -1} />
-                    </div>
-                    <div className="field-checkbox">
-                        <label htmlFor="code3">Python</label>
-                        <Checkbox inputId="code3" name="code" value="Python" onChange={this.onCodeChange} checked={this.state.coding.indexOf('Python') !== -1} />
-                    </div>
-                    <div className="field-checkbox">
-                        <label htmlFor="code4">React</label>
-                        <Checkbox inputId="code4" name="code" value="React" onChange={this.onCodeChange} checked={this.state.coding.indexOf('React') !== -1} />
-                    </div>                                
-                </div>
+                      <div className="card">
+                            <h5>Linguagens de programação</h5>
+                            <div className="field-checkbox">
+                                <label htmlFor="code1">Java</label>
+                                <Checkbox inputId="code1" name="code" value="Java" onChange={this.onCodeChange} checked={this.state.coding.indexOf('Java') !== -1} />
+                            </div>
+                            <div className="field-checkbox">
+                                <label htmlFor="code2">JavaScript</label>
+                                <Checkbox inputId="code2" name="code" value="JavaScript" onChange={this.onCodeChange} checked={this.state.coding.indexOf('JavaScript') !== -1} />
+                            </div>
+                            <div className="field-checkbox">
+                                <label htmlFor="code3">Python</label>
+                                <Checkbox inputId="code3" name="code" value="Python" onChange={this.onCodeChange} checked={this.state.coding.indexOf('Python') !== -1} />
+                            </div>
+                            <div className="field-checkbox">
+                                <label htmlFor="code4">React</label>
+                                <Checkbox inputId="code4" name="code" value="React" onChange={this.onCodeChange} checked={this.state.coding.indexOf('React') !== -1} />
+                            </div>                                
+                        </div>
             
 
-              <br/>
+                     <br/>
 
-              <FormGroup label="Pode viajar?" htmlFor="inputpodeViajar">
-                <BootstrapSwitchButton
-                  //checked={false}
-                  onlabel=''
-                  offlabel=''
-                  onChange={(checked) => {
-                      this.setState({ podeViajar: checked })
-                  }}
-                  size="sm"/>
-                </FormGroup>
-
-
-              <br/>
-
+                        <FormGroup label="Pode viajar?" htmlFor="inputpodeViajar"> <br/>
+                          <BootstrapSwitchButton
+                            //checked={false}
+                            onlabel=''
+                            offlabel=''
+                            onChange={(checked) => {
+                                this.setState({ podeViajar: checked })
+                            }}
+                            size="sm"/>
+                        </FormGroup>
              
+                     <br/>
 
-              
-                <br/>
+                    <div>
+                      <legend className="scheduler-border">Mais informações:</legend>
+                      <InputTextarea rows={5} cols={54} onChange={(e) => this.setState({ outrasInfo: e.target.value })}/>           
+                    </div>   
 
-                <form className="container" method="get" id="form-adiciona">
-                  <FormGroup label="CEP:" htmlFor="cep">
-                      <input type="text"  className="form-control" id="cep" name="cep" onBlur={this.checkCEP} />
-                  </FormGroup>
-                  
-                  <FormGroup label="Rua:" htmlFor="rua">
-                      <input type="text"  className="form-control" id="rua" name="rua" />
-                  </FormGroup>
 
-                  <FormGroup label="Bairro:" htmlFor="bairro">
-                      <input type="text"  className="form-control" id="bairro" name="bairro" />
-                  </FormGroup>
+                    </Tab>
 
-                  <FormGroup label="Cidade:" htmlFor="nome_cidade">
-                      <input type="text"  className="form-control" id="cidade" name="nome_cidade" />
-                  </FormGroup>
+                    <Tab eventKey="endereco" title="Endereco">
+                        <form className="container" method="get" id="form-adiciona">
+                            <FormGroup label="CEP:" htmlFor="cep">
+                                <input type="text"  className="form-control" id="cep" name="cep" onBlur={this.checkCEP} />
+                            </FormGroup>
+                            
+                            <FormGroup label="Rua:" htmlFor="rua">
+                                <input type="text"  className="form-control" id="rua" name="rua" />
+                            </FormGroup>
 
-                  <FormGroup label="UF:" htmlFor="uf">
-                      <input type="text"  className="form-control" id="uf" name="uf" />
-                  </FormGroup>
+                            <FormGroup label="Numero:" htmlFor="numero">
+                                <input type="text"  className="form-control" id="numero" name="numero" />
+                            </FormGroup>
 
-                  <br/>
-                  <button onClick={this.addDados} className="btn btn btn-success">Adicionar</button>
-                </form>
+                            <FormGroup label="Complemento:" htmlFor="complemento">
+                                <input type="text"  className="form-control" id="complemento" name="complemento" />
+                            </FormGroup>
 
-                <br/>
+                            <FormGroup label="Bairro:" htmlFor="bairro">
+                                <input type="text"  className="form-control" id="bairro" name="bairro" />
+                            </FormGroup>
 
-        
-              <h2>Enderecos</h2>
-				
-              
-              <table className="table table-striped">
-                <thead>
-                  <tr>
-                      <th>CEP</th>
-                      <th>Rua</th>
-                      <th>Bairro</th>
-                      <th>cidade</th>
-                      <th>estado</th>
-                  </tr>
-                </thead>
-                <tbody id="tabela-items" >
-                  
-                </tbody>
-              </table>
+                            <FormGroup label="Cidade:" htmlFor="nome_cidade">
+                                <input type="text"  className="form-control" id="cidade" name="nome_cidade" />
+                            </FormGroup>
 
-              <br/>
+                            <FormGroup label="UF:" htmlFor="uf">
+                                <input type="text"  className="form-control" id="uf" name="uf" />
+                            </FormGroup>
 
-              <Dropdown
-                  placeholder="Estado Civil"
-                  options={['Solteiro', 'Casado', 'Divorciado']}
-                  value="estadoCivil"
-                  onChange={this.onEstadoCivilChange}
-                  onSelect={(value) => console.log('selected!', value)} // always fires once a selection happens even if there is no change
-                  onClose={(closedBySelection) => console.log('closedBySelection?:', closedBySelection)}
-                  onOpen={() => console.log('open!')}
-                />
+                            <br/>
+                            <button onClick={this.addDados} className="btn btn btn-success">Adicionar</button>
+                      </form>
 
-              <br/>
+                      <br/>
 
-                <div>
-                  <legend className="scheduler-border">Mais informações:</legend>
-                  <InputTextarea rows={5} cols={54} onChange={(e) => this.setState({ outrasInfo: e.target.value })}/>           
-                </div>  
+                      <h2>Enderecos</h2>              
+                          <table className="table table-striped">
+                            <thead>
+                              <tr>
+                                  <th>CEP</th>
+                                  <th>Rua</th>
+                                  <th>Numero</th>
+                                  <th>Complemento</th>
+                                  <th>Bairro</th>
+                                  <th>Cidade</th>
+                                  <th>Estado</th>
+                              </tr>
+                            </thead>
+                            <tbody id="tabela-items" >
+                              
+                            </tbody>
+                          </table>  
+
+                    </Tab>
+                </Tabs>                  
+
                
 
               
-              <div>
-
-   
-  
-
-         </div>          
+            <div>
+           </div>          
            </div>
            </div>
           <br />
