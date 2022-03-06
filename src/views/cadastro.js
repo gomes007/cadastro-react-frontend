@@ -8,8 +8,10 @@ import {mensagemSucesso, mensagemErro} from "../components/toastr"
 import Button from 'react-bootstrap/Button';
 import { Checkbox } from 'primereact/checkbox';
 import BootstrapSwitchButton from 'bootstrap-switch-button-react';
-
-import react, { useEffect, useState } from "react";
+import { Dropdown } from 'react-dropdown-now';
+import 'react-dropdown-now/style.css';
+import { InputTextarea } from 'primereact/inputtextarea';
+import fieldset from '../components/fieldset.css'
 
 
 
@@ -26,6 +28,9 @@ class Cadastro extends React.Component {
     checked: false,
     coding: [],
     dataNascimento: "",
+    estadoCivil: "",
+    outrasInfo: "",
+    telefone: "",
 
     cep:"",
     logradouro: "",
@@ -58,6 +63,14 @@ class Cadastro extends React.Component {
 
   onCodeChange = this.onCodeChange.bind(this);
 
+
+  onEstadoCivilChange(e) {
+    let selectedEstadocivil = [...this.state.estadoCivil];
+    selectedEstadocivil.push(e.value);
+    this.setState({ estadoCivil: selectedEstadocivil });
+}
+
+  onEstadoCivilChange = this.onEstadoCivilChange.bind(this);
   
 
   checkCEP = (e) => {
@@ -80,8 +93,8 @@ class Cadastro extends React.Component {
 
   cadastrar = () => {
 
-    const { nome, email, sexo, podeViajar, coding, dataNascimento, cep, logradouro, numero, bairro, nome_cidade, uf } = this.state;
-    const funcionario = { nome, email, sexo, podeViajar, coding, dataNascimento, cep, logradouro, numero, bairro, nome_cidade, uf };
+    const { nome, email, sexo, podeViajar, coding, dataNascimento, cep, logradouro, numero, bairro, nome_cidade, uf, estadoCivil, outrasInfo, telefone } = this.state;
+    const funcionario = { nome, email, sexo, podeViajar, coding, dataNascimento, cep, logradouro, numero, bairro, nome_cidade, uf, estadoCivil, outrasInfo, telefone };
 
   
     
@@ -173,11 +186,9 @@ class Cadastro extends React.Component {
   
   onEndChange(e) {
     let selectedCep = [...this.state.cep];
-
     this.setState({ cep: selectedCep });
 }
-
-onEndChange = this.onEndChange.bind(this);
+  onEndChange = this.onEndChange.bind(this);
 
 
 
@@ -198,10 +209,9 @@ onEndChange = this.onEndChange.bind(this);
 
               <br/>
 
-              <fieldset className="form-group">
-                  <div className="row">
-                    <legend className="col-form-label col-sm-2 pt-0">Sexo</legend>
-                    <div className="col-sm-10">
+              <div className="container">
+                  <fieldset className="scheduler-border">
+                      <legend className="scheduler-border">Sexo</legend>
                       <div className="form-check">
                         <label className="form-check-label" htmlFor="gridRadios1">Masculino</label>
                         <input className="form-check-input" type="radio" name="sexo" id="gridRadios1" value="masculino" onChange={(e) => this.setState({ sexo: e.target.value })}/>
@@ -210,14 +220,34 @@ onEndChange = this.onEndChange.bind(this);
                         <label className="form-check-label" htmlFor="gridRadios2">Feminino</label>
                         <input className="form-check-input" type="radio" name="sexo" id="gridRadios2" value="feminino" onChange={(e) => this.setState({ sexo: e.target.value })}/>
                       </div>
-                    </div>
-                  </div>
-              </fieldset>
+                  </fieldset>
+                </div>
 
           
               <FormGroup label="Data Nascimento:" htmlFor="inputDataNascimento">
                 <input type="date" className="form-control" id="inputDataNascimento" name="DataNascimento" onChange={(e) =>  this.setState({ dataNascimento: e.target.value })} />
               </FormGroup>
+
+
+              <div className="card">
+                    <h5>Linguagens de programação</h5>
+                    <div className="field-checkbox">
+                        <label htmlFor="code1">Java</label>
+                        <Checkbox inputId="code1" name="code" value="Java" onChange={this.onCodeChange} checked={this.state.coding.indexOf('Java') !== -1} />
+                    </div>
+                    <div className="field-checkbox">
+                        <label htmlFor="code2">JavaScript</label>
+                        <Checkbox inputId="code2" name="code" value="JavaScript" onChange={this.onCodeChange} checked={this.state.coding.indexOf('JavaScript') !== -1} />
+                    </div>
+                    <div className="field-checkbox">
+                        <label htmlFor="code3">Python</label>
+                        <Checkbox inputId="code3" name="code" value="Python" onChange={this.onCodeChange} checked={this.state.coding.indexOf('Python') !== -1} />
+                    </div>
+                    <div className="field-checkbox">
+                        <label htmlFor="code4">React</label>
+                        <Checkbox inputId="code4" name="code" value="React" onChange={this.onCodeChange} checked={this.state.coding.indexOf('React') !== -1} />
+                    </div>                                
+                </div>
             
 
               <br/>
@@ -237,25 +267,7 @@ onEndChange = this.onEndChange.bind(this);
               <br/>
 
              
-                <div className="card">
-                    <h5>Linguagens de programação</h5>
-                    <div className="field-checkbox">
-                        <label htmlFor="code1">Java</label>
-                        <Checkbox inputId="code1" name="code" value="Java" onChange={this.onCodeChange} checked={this.state.coding.indexOf('Java') !== -1} />
-                    </div>
-                    <div className="field-checkbox">
-                        <label htmlFor="code2">JavaScript</label>
-                        <Checkbox inputId="code2" name="code" value="JavaScript" onChange={this.onCodeChange} checked={this.state.coding.indexOf('JavaScript') !== -1} />
-                    </div>
-                    <div className="field-checkbox">
-                        <label htmlFor="code3">Python</label>
-                        <Checkbox inputId="code3" name="code" value="Python" onChange={this.onCodeChange} checked={this.state.coding.indexOf('Python') !== -1} />
-                    </div>
-                    <div className="field-checkbox">
-                        <label htmlFor="code4">React</label>
-                        <Checkbox inputId="code4" name="code" value="React" onChange={this.onCodeChange} checked={this.state.coding.indexOf('React') !== -1} />
-                    </div>                                
-                </div>
+
               
                 <br/>
 
@@ -304,9 +316,33 @@ onEndChange = this.onEndChange.bind(this);
                   
                 </tbody>
               </table>
-             
 
+              <br/>
+
+              <Dropdown
+                  placeholder="Estado Civil"
+                  options={['Solteiro', 'Casado', 'Divorciado']}
+                  value="estadoCivil"
+                  onChange={this.onEstadoCivilChange}
+                  onSelect={(value) => console.log('selected!', value)} // always fires once a selection happens even if there is no change
+                  onClose={(closedBySelection) => console.log('closedBySelection?:', closedBySelection)}
+                  onOpen={() => console.log('open!')}
+                />
+
+              <br/>
+
+                <div>
+                  <legend className="scheduler-border">Mais informações:</legend>
+                  <InputTextarea rows={5} cols={54} onChange={(e) => this.setState({ outrasInfo: e.target.value })}/>           
+                </div>  
+               
+
+              
               <div>
+
+   
+  
+
          </div>          
            </div>
            </div>
