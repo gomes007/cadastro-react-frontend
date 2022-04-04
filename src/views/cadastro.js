@@ -4,7 +4,7 @@ import React from "react";
 
 import FormGroup from "../components/form-group";
 import Card from "../components/card";
-import {mensagemSucesso, mensagemErro} from "../components/toastr"
+
 import Button from 'react-bootstrap/Button';
 import { Checkbox } from 'primereact/checkbox';
 import BootstrapSwitchButton from 'bootstrap-switch-button-react';
@@ -15,6 +15,11 @@ import fieldset from '../components/fieldset.css'
 import Tabs from "react-bootstrap/Tabs";
 import { Tab } from "react-bootstrap";
 import * as messages from '../components/toastr';
+import { Form, Container, Col, Row } from 'react-bootstrap';
+
+
+
+
 
 
 import CadastroService from "../service/cadastroService";
@@ -42,6 +47,7 @@ class Cadastro extends React.Component {
     bairro: "",
     nome_cidade: "",
     uf: "",
+    tb: []
   };
   
 
@@ -50,7 +56,8 @@ class Cadastro extends React.Component {
     super();
     this.service = new CadastroService();  
   }
-  
+
+ 
   
   onCodeChange(e) {
     let selectedCoding = [...this.state.coding];
@@ -62,7 +69,6 @@ class Cadastro extends React.Component {
 
     this.setState({ coding: selectedCoding });
 }
-
   onCodeChange = this.onCodeChange.bind(this);
 
 
@@ -71,26 +77,22 @@ class Cadastro extends React.Component {
     selectedEstadocivil.push(e.value);
     this.setState({ estadoCivil: selectedEstadocivil });
 }
-
   onEstadoCivilChange = this.onEstadoCivilChange.bind(this);
   
 
   checkCEP = (e) => {
+    if (!e.target.value) return;
     const cep = e.target.value.replace(/\D/g, '');
-    //console.log(cep);
     fetch(`https://viacep.com.br/ws/${cep}/json/`)
       .then(res => res.json())
       .then(data => {
-        //console.log(data);
         document.getElementById('rua').value=(data.logradouro);
         document.getElementById('bairro').value=(data.bairro);
         document.getElementById('cidade').value=(data.localidade);
         document.getElementById('uf').value=(data.uf);
-      });
+        document.getElementById('numero').focus();
+      }).catch((err) => console.log(err));
   }
-
- 
-  handleReset = () => { this.setState(({ name: '', email: '', })) }
 
 
   cadastrar = () => {
@@ -100,11 +102,11 @@ class Cadastro extends React.Component {
    
     this.service
       .save(funcionario)
-      .then((response) => {                      
+      .then((response) => {                              
         messages.mensagemSucesso('cadastrado com sucesso!');
       })
       .catch((erro) => {
-        mensagemErro(erro.response.data); 
+        messages.mensagemErro(erro.response.data); 
       });
 
   };
@@ -112,13 +114,11 @@ class Cadastro extends React.Component {
 
 
   //data table para endereços
-
   adicionaItemNaTabela(item) {
     var itemTr = this.montaTr(item);
     var tabela = document.getElementById('tabela-items');
     tabela.appendChild(itemTr);
   }
-
 
   obtemitemDoForm(form) {
     var item = {
@@ -133,13 +133,12 @@ class Cadastro extends React.Component {
     return item;
   }
 
-  
+
   montaTr(item) {
     //criar tr para incluir novos dados
     var itemTr = document.createElement("tr");
     itemTr.classList.add("item");
-  
-    //incluindo td na tr
+      //incluindo td na tr
     itemTr.appendChild(this.montaTd(item.cep, "info-cep"));
     itemTr.appendChild(this.montaTd(item.rua, "info-rua"));
     itemTr.appendChild(this.montaTd(item.numero, "info-num"));
@@ -150,7 +149,6 @@ class Cadastro extends React.Component {
     return itemTr;
   }
 
-
   montaTd(dado, classe) {
     var td = document.createElement("td");
     td.textContent = dado;
@@ -158,12 +156,8 @@ class Cadastro extends React.Component {
     return td;
   }
 
-
-
-  addDados = (e) => {
-    
+  addDados = (e) => {    
         e.preventDefault();
-      
         //passar o formulario para uma variavel e capturar os valores dos input atraves do name
         var form = document.getElementById('form-adiciona');
       
@@ -173,31 +167,28 @@ class Cadastro extends React.Component {
       
         form.reset();        
   }
+
   //fim data table para endereços
 
+
+
+
+
   
-  onEndChange(e) {
-    let selectedCep = [...this.state.cep];
-    this.setState({ cep: selectedCep });
-}
-  onEndChange = this.onEndChange.bind(this);
-
-
-
-
   render() {
-    return (
+    return (      
     <div className="container" style={{ position: "relative", top: "10px" }}>
       <Card title="Cadastro de Funcionarios"> 
         <div className="row">
-          <div className="col-lg-6">                                         
+          <div className="col-lg-12">                                         
                 <Tabs
                     defaultActiveKey="profile"
                     transition={false}
                     id="noanim-tab-example"
                     className="mb-3">
 
-                  <Tab eventKey="profile" title="Profile">                    
+                  <Tab eventKey="profile" title="Profile"> 
+                  
                     <FormGroup label="Nome:" htmlFor="inputNome">
                         <input type="text"  className="form-control" id="inputNome" name="nome" onChange={(e) => this.setState({ nome: e.target.value })} />
                     </FormGroup>
@@ -239,10 +230,11 @@ class Cadastro extends React.Component {
                           options={['Solteiro', 'Casado', 'Divorciado']}
                           value="estadoCivil"
                           onChange={this.onEstadoCivilChange}
-                          onSelect={(value) => console.log('selected!', value)} // always fires once a selection happens even if there is no change
+                          onSelect={(value) => console.log('selected!', value)}
                           onClose={(closedBySelection) => console.log('closedBySelection?:', closedBySelection)}
                           onOpen={() => console.log('open!')}
                       />
+
 
                       <br/>
 
@@ -291,35 +283,52 @@ class Cadastro extends React.Component {
                     </Tab>
 
                     <Tab eventKey="endereco" title="Endereco">
-                        <form className="container" method="get" id="form-adiciona">
+                    
+                      <form className="container" method="get" id="form-adiciona">
+                        
+                        <Col sm={2}>
                             <FormGroup label="CEP:" htmlFor="cep">
                                 <input type="text"  className="form-control" id="cep" name="cep" onBlur={this.checkCEP} />
                             </FormGroup>
-                            
+                        </Col>
+
+                        
+                        <Row>
+                        <Col sm={8}>
                             <FormGroup label="Rua:" htmlFor="rua">
                                 <input type="text"  className="form-control" id="rua" name="rua" />
                             </FormGroup>
-
+                        </Col>
+                        <Col>
                             <FormGroup label="Numero:" htmlFor="numero">
                                 <input type="text"  className="form-control" id="numero" name="numero" />
                             </FormGroup>
-
+                        </Col>
+                        <Col>
                             <FormGroup label="Complemento:" htmlFor="complemento">
                                 <input type="text"  className="form-control" id="complemento" name="complemento" />
                             </FormGroup>
-
+                        </Col>
+                          
+                          </Row>
+                        
+                          <Row>
+                          <Col sm={4}>
                             <FormGroup label="Bairro:" htmlFor="bairro">
                                 <input type="text"  className="form-control" id="bairro" name="bairro" />
                             </FormGroup>
-
+                          </Col>
+                          <Col sm={4}>
                             <FormGroup label="Cidade:" htmlFor="nome_cidade">
                                 <input type="text"  className="form-control" id="cidade" name="nome_cidade" />
                             </FormGroup>
-
+                          </Col>
+                          <Col sm={2}>
                             <FormGroup label="UF:" htmlFor="uf">
                                 <input type="text"  className="form-control" id="uf" name="uf" />
                             </FormGroup>
-
+                          </Col>
+                          </Row>
                             <br/>
                             <button onClick={this.addDados} className="btn btn btn-success">Adicionar</button>
                       </form>
@@ -340,7 +349,7 @@ class Cadastro extends React.Component {
                               </tr>
                             </thead>
                             <tbody id="tabela-items" >
-                              
+ 
                             </tbody>
                           </table>  
 
@@ -358,6 +367,7 @@ class Cadastro extends React.Component {
 
       <Button className="btn btn-success" onClick={this.cadastrar}>Save</Button>
       </Card>
+      
       </div>
      
     );

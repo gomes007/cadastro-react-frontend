@@ -1,62 +1,56 @@
-import React from 'react';
-import EventEmitter from 'react-event-emitter';
+import React from "react";
 
 
-class Store extends EventEmitter {
-  constructor() {
-    super()
+export default class Teste2 extends React.Component {
 
-    this.data = [ 'a', 'b', 'c' ]
-  }
-
-  onChange() {
-    this.emit( 'update', this.data )
-  }
-
-  mutate( index, value ) {
-    this.data[ index ] = value
-    this.onChange()
-  }
-}
-
-var store = new Store()
-
-class ChildComponent extends React.Component {
-  constructor( props ) {
-    super( props )
-  }
-
-  // You probably want to use a dispatcher rather than directly accessing the store
-  onClick = event => {
-    store.mutate( this.props.index, this.props.value + 'Z' )
-  }
-
-  render() {
-    return <button onClick={ this.onClick }>{ this.props.value }</button>
-  }
-}
-
-class ParentComponent extends React.Component {
-  constructor( props ) {
-    super( props )
-
-    // You probably want to be smarter about initially populating state
+  constructor(){
+    super();
     this.state = {
-      data: store.data
+      DDL1: [],
+      DDL2: [],
+      selectddl: '',
     }
   }
 
-  componentWillMount() {
-    store.on( 'update', data => this.setState({ data: data }) )
+  componentDidMount() {
+    this.setState({
+      DDL1: [
+        {name: 'Colors', DDL2:['Red', 'Black', 'Orange']},
+        {name: 'Sports', DDL2:['basketball', 'volei', 'tenis']},
+        {name: 'Fruits', DDL2:['apple', 'orange', 'grapes']},
+        {name: 'CountryNames', DDL2:['Brazil', 'US', 'UK']},
+      ]
+    })
   }
 
-  render() {
-    let cells = this.state.data.map( ( value, index ) => <ChildComponent index={ index } value={ value } /> )
+  selectChange(e) {
+    this.setState({selectddl: e.target.value});
+    this.setState({DDL2: this.state.DDL1.find(x => x.name === e.target.value).DDL2});
+  }
 
+
+  render() {
     return (
-      <div>
-        { cells }
+      <div className="container" style={{ position: "relative", top: "10px" }}>
+
+        <select value={this.state.selectddl} onChange={this.selectChange.bind(this)}>
+          <option>--select--</option>
+          {this.state.DDL1.map(x => {
+            return <option>{x.name}</option>
+          })}
+        </select>
+          
+        <select>
+        <option selected disabled>---</option>
+          {
+            this.state.DDL2.map(x => {
+              return <option>{x}</option>
+            })
+          }
+        </select>
+
       </div>
-    )
+      
+    );
   }
 }
