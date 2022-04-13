@@ -10,7 +10,7 @@ class ApiService {
         this.apiurl = apiurl;
       }
     
-    post(url, objeto) { /* aciona o end point no back end (http://localhost:8080/apiurl/url) ver detalhes em: usuarioService.js */
+    post(url, objeto) { /* aciona o end point no back end (http://localhost:8080/apiurl/url) ver detalhes em: cadastroService.js */
         const requestUrl = `${this.apiurl}${url}`
         return httpClient.post(requestUrl, objeto); 
       }

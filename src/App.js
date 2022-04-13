@@ -1,7 +1,6 @@
 import React from "react";
 import Cadastro from "./views/cadastro";
-import Tela from "./views/tela";
-import Cadastro2 from "./views/cadastro copy 2";
+
 
 
 import "primereact/resources/themes/lara-light-indigo/theme.css"; //theme
@@ -14,13 +13,14 @@ import "bootswatch/dist/cerulean/bootstrap.css";
 import "toastr/build/toastr.css";
 import "toastr/build/toastr.min.js";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Cadastro2 from "./views/cadastro copy";
 
 function App() {
   return (
    
       <Router>                
         <Switch>
-          <Route exact path="/" component={Cadastro2} />
+          <Route exact path="/" component={Cadastro} />
         </Switch>
       </Router>
     

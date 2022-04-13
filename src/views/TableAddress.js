@@ -7,7 +7,7 @@ class TableAddress extends React.Component {
     return (
       <div id="Table">
         <form onSubmit={this.props.onChange}> 
-        <table>
+        <table className="table table-striped">
           <tbody>
             <tr>
               <th>cep</th>
@@ -18,17 +18,17 @@ class TableAddress extends React.Component {
               <th>nome_cidade</th>
               <th>uf</th>
             </tr>
-            {items.map((item) => { 
+            {items.map((item, index) => { 
                            
               return (
-                <tr>                  
+                <tr key={index}>                  
                   <td>{item.cep}</td>
                   <td>{item.logradouro}</td>
                   <td>{item.numero}</td>
                   <td>{item.complemento}</td>
                   <td>{item.bairro}</td>
-                  <td>{item.nome_cidade}</td>
-                  <td>{item.uf}</td>
+                  <td>{item.cidade.nome_cidade}</td>
+                  <td>{item.cidade.estado.uf}</td>
                 </tr>
               );
             })}

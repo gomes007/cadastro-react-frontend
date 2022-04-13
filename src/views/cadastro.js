@@ -4,6 +4,7 @@ import React from "react";
 
 import FormGroup from "../components/form-group";
 import Card from "../components/card";
+import TableAddress from "./TableAddress";
 
 import Button from 'react-bootstrap/Button';
 import { Checkbox } from 'primereact/checkbox';
@@ -47,7 +48,7 @@ class Cadastro extends React.Component {
     bairro: "",
     nome_cidade: "",
     uf: "",
-    tb: []
+    items: []
   };
   
 
@@ -86,7 +87,7 @@ class Cadastro extends React.Component {
     fetch(`https://viacep.com.br/ws/${cep}/json/`)
       .then(res => res.json())
       .then(data => {
-        document.getElementById('rua').value=(data.logradouro);
+        document.getElementById('logradouro').value=(data.logradouro);
         document.getElementById('bairro').value=(data.bairro);
         document.getElementById('cidade').value=(data.localidade);
         document.getElementById('uf').value=(data.uf);
@@ -96,9 +97,8 @@ class Cadastro extends React.Component {
 
 
   cadastrar = () => {
-
     const { nome, email, sexo, podeViajar, coding, dataNascimento, cep, logradouro, numero, bairro, nome_cidade, uf, estadoCivil, outrasInfo, telefone, cpf, complemento } = this.state;
-    const funcionario = { nome, email, sexo, podeViajar, coding, dataNascimento, cep, logradouro, numero, bairro, nome_cidade, uf, estadoCivil, outrasInfo, telefone, cpf, complemento };
+    const funcionario = { nome, email, sexo, podeViajar, coding, dataNascimento, cep, logradouro, numero, bairro, nome_cidade, uf, estadoCivil, outrasInfo, telefone, cpf, complemento, enderecos: this.state.items};
    
     this.service
       .save(funcionario)
@@ -108,69 +108,52 @@ class Cadastro extends React.Component {
       .catch((erro) => {
         messages.mensagemErro(erro.response.data); 
       });
-
   };
 
 
+  handleFormSubmit = (e) => {
+    e.preventDefault();
 
-  //data table para endereços
-  adicionaItemNaTabela(item) {
-    var itemTr = this.montaTr(item);
-    var tabela = document.getElementById('tabela-items');
-    tabela.appendChild(itemTr);
+    let items = [...this.state.items];
+
+    items.push({
+      cep: this.state.cep,
+      logradouro: this.state.logradouro,
+      numero: this.state.numero,
+      complemento: this.state.complemento,
+      bairro: this.state.bairro,
+      cidade: {nome_cidade: this.state.nome_cidade, estado: {uf: this.state.uf}},
+    });
+
+    this.setState({
+      items,
+      cep: '',
+      logradouro: '',
+      numero: '',
+      complemento: '',
+      bairro: '',
+      nome_cidade: '',
+      uf: ''
+    });
+    var form = document.getElementById('form-adiciona');
+    form.reset();
+  };
+
+  handleInputChange = (e) => {
+    let input = e.target;
+    let name = e.target.name;
+    let value = input.value;
+
+    this.setState({
+      [name]: value
+    })
+  };
+
+  handleChange = (event) => {
+    const value = event.target.value
+    const name = event.target.name
+    this.setState({[name]:value})
   }
-
-  obtemitemDoForm(form) {
-    var item = {
-      cep: form.cep.value,
-      rua: form.rua.value,
-      numero: form.numero.value,
-      complemento: form.complemento.value,
-      bairro: form.bairro.value,
-      cidade: form.cidade.value,
-      uf: form.uf.value,
-    };      
-    return item;
-  }
-
-
-  montaTr(item) {
-    //criar tr para incluir novos dados
-    var itemTr = document.createElement("tr");
-    itemTr.classList.add("item");
-      //incluindo td na tr
-    itemTr.appendChild(this.montaTd(item.cep, "info-cep"));
-    itemTr.appendChild(this.montaTd(item.rua, "info-rua"));
-    itemTr.appendChild(this.montaTd(item.numero, "info-num"));
-    itemTr.appendChild(this.montaTd(item.complemento, "info-complemento"));
-    itemTr.appendChild(this.montaTd(item.bairro, "info-bairro"));
-    itemTr.appendChild(this.montaTd(item.cidade, "info-cidade"));
-    itemTr.appendChild(this.montaTd(item.uf, "info-uf"));
-    return itemTr;
-  }
-
-  montaTd(dado, classe) {
-    var td = document.createElement("td");
-    td.textContent = dado;
-    td.classList.add(classe);
-    return td;
-  }
-
-  addDados = (e) => {    
-        e.preventDefault();
-        //passar o formulario para uma variavel e capturar os valores dos input atraves do name
-        var form = document.getElementById('form-adiciona');
-      
-        var item = this.obtemitemDoForm(form);
-      
-        this.adicionaItemNaTabela(item)
-      
-        form.reset();        
-  }
-
-  //fim data table para endereços
-
-
 
 
 
@@ -210,6 +193,7 @@ class Cadastro extends React.Component {
                     <FormGroup label="Data Nascimento:" htmlFor="inputDataNascimento">
                         <input type="date" className="form-control" id="inputDataNascimento" name="DataNascimento" onChange={(e) =>  this.setState({ dataNascimento: e.target.value })} />
                     </FormGroup>
+                    
 
                     <div className="container">
                         <fieldset className="scheduler-border">
@@ -288,25 +272,25 @@ class Cadastro extends React.Component {
                         
                         <Col sm={2}>
                             <FormGroup label="CEP:" htmlFor="cep">
-                                <input type="text"  className="form-control" id="cep" name="cep" onBlur={this.checkCEP} />
+                                <input type="text"  className="form-control" id="cep" name="cep" onBlur={this.checkCEP} onChange={this.handleInputChange}/>
                             </FormGroup>
                         </Col>
 
                         
                         <Row>
                         <Col sm={8}>
-                            <FormGroup label="Rua:" htmlFor="rua">
-                                <input type="text"  className="form-control" id="rua" name="rua" />
+                            <FormGroup label="Logradouro:" htmlFor="rua">
+                                <input type="text"  className="form-control" id="logradouro" name="logradouro" onChange={this.handleInputChange}/>
                             </FormGroup>
                         </Col>
                         <Col>
                             <FormGroup label="Numero:" htmlFor="numero">
-                                <input type="text"  className="form-control" id="numero" name="numero" />
+                                <input type="text"  className="form-control" id="numero" name="numero" onChange={this.handleInputChange}/>
                             </FormGroup>
                         </Col>
                         <Col>
                             <FormGroup label="Complemento:" htmlFor="complemento">
-                                <input type="text"  className="form-control" id="complemento" name="complemento" />
+                                <input type="text"  className="form-control" id="complemento" name="complemento" onChange={this.handleInputChange}/>
                             </FormGroup>
                         </Col>
                           
@@ -315,43 +299,33 @@ class Cadastro extends React.Component {
                           <Row>
                           <Col sm={4}>
                             <FormGroup label="Bairro:" htmlFor="bairro">
-                                <input type="text"  className="form-control" id="bairro" name="bairro" />
+                                <input type="text"  className="form-control" id="bairro" name="bairro" onChange={this.handleInputChange}/>
                             </FormGroup>
                           </Col>
                           <Col sm={4}>
                             <FormGroup label="Cidade:" htmlFor="nome_cidade">
-                                <input type="text"  className="form-control" id="cidade" name="nome_cidade" />
+                                <input type="text"  className="form-control" id="cidade" name="nome_cidade" onChange={this.handleInputChange}/>
                             </FormGroup>
                           </Col>
                           <Col sm={2}>
                             <FormGroup label="UF:" htmlFor="uf">
-                                <input type="text"  className="form-control" id="uf" name="uf" />
+                                <input type="text"  className="form-control" id="uf" name="uf" onChange={this.handleInputChange}/>
                             </FormGroup>
                           </Col>
                           </Row>
                             <br/>
-                            <button onClick={this.addDados} className="btn btn btn-success">Adicionar</button>
+                            <button type="submit" value="Submit" onClick={this.handleFormSubmit} className="btn btn btn-success">Adicionar</button>
                       </form>
 
                       <br/>
 
                       <h2>Enderecos</h2>              
-                          <table className="table table-striped">
-                            <thead>
-                              <tr>
-                                  <th>CEP</th>
-                                  <th>Rua</th>
-                                  <th>Numero</th>
-                                  <th>Complemento</th>
-                                  <th>Bairro</th>
-                                  <th>Cidade</th>
-                                  <th>Estado</th>
-                              </tr>
-                            </thead>
-                            <tbody id="tabela-items" >
- 
-                            </tbody>
-                          </table>  
+                      <div>
+                        <TableAddress items = {this.state.items} 
+                        value={this.state.items}
+                        name="items"
+                        onChange={this.handleChange}/>
+                      </div>  
 
                     </Tab>
                 </Tabs>                  
